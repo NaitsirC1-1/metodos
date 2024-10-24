@@ -1,0 +1,73 @@
+import numpy as np
+
+def evaluar_polinomio(coef, x):
+
+    return np.polyval(coef, x)
+
+def muller(coef, x0, x1, x2, tol=1e-6, max_iter=100):
+    for i in range(max_iter):
+        # Evaluar el polinomio en x0, x1 y x2
+        f0 = evaluar_polinomio(coef, x0)
+        f1 = evaluar_polinomio(coef, x1)
+        f2 = evaluar_polinomio(coef, x2)
+
+        # Calcular diferencias
+        h1 = x1 - x0
+        h2 = x2 - x1
+        delta1 = (f1 - f0) / h1
+        delta2 = (f2 - f1) / h2
+        a = (delta2 - delta1) / (h2 + h1)
+        b = a * h2 + delta2
+        c = f2
+
+        # Calcular la raíz del polinomio cuadrático
+        discriminante = b**2 - 4*a*c
+        if discriminante < 0:
+            print("El método de Müller encontró una raíz imaginaria.")
+            discriminante = discriminante + 0j  
+        
+        # Trabajar con números complejos
+
+        sqrt_discriminante = np.sqrt(discriminante)
+
+        if abs(b + sqrt_discriminante) > abs(b - sqrt_discriminante):
+            denominador = b + sqrt_discriminante
+        else:
+            denominador = b - sqrt_discriminante
+
+        # Calcular el próximo punto
+        dx = -2 * c / denominador
+        x3 = x2 + dx
+
+        # Verificar convergencia
+        if abs(dx) < tol:
+            return x3
+        
+        # Actualizar los puntos
+        x0, x1, x2 = x1, x2, x3
+
+    raise Exception("El método de Müller no convergió en las iteraciones dadas.")
+
+def ingresar_polinomio():
+    grado = int(input("Introduce el grado del polinomio: "))
+    coef = []
+    for i in range(grado, -1, -1):
+        coef_i = float(input(f"Introduce el coeficiente de x^{i}: "))
+        coef.append(coef_i)
+    return coef
+
+# METODO
+if __name__ == "__main__":
+    print("Método de Müller para encontrar raíces de un polinomio")
+    coef = ingresar_polinomio()
+    
+    # Puntos iniciales
+    x0 = float(input("Introduce el valor inicial x0: "))
+    x1 = float(input("Introduce el valor inicial x1: "))
+    x2 = float(input("Introduce el valor inicial x2: "))
+    
+    try:
+        raiz = muller(coef, x0, x1, x2)
+        print(f"La raíz aproximada es: {raiz}")
+    except Exception as e:
+        print(str(e))
